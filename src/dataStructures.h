@@ -1,11 +1,3 @@
-//
-//  dataStructures.h
-//  OpenCVTest
-//
-//  Created by Andreas Haja on 01.04.19.
-//  Copyright © 2019 Andreas Haja. All rights reserved.
-//
-
 #ifndef dataStructures_h
 #define dataStructures_h
 

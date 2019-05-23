@@ -1,11 +1,3 @@
-//
-//  matching2D.hpp
-//  OpenCVTest
-//
-//  Created by Prof. Dr. Andreas Haja on 26.03.19.
-//  Copyright © 2019 Andreas Haja. All rights reserved.
-//
-
 #ifndef matching2D_hpp
 #define matching2D_hpp
 
