@@ -75,7 +75,7 @@ int main(int argc, const char *argv[])
 
         //// STUDENT ASSIGNMENT
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
-        //// -> HARRIS, SHITOMASI, FAST, BRISK, ORB, AKAZE, FREAK, SIFT
+        //// -> HARRIS, SHITOMASI, FAST, BRISK, ORB, AKAZE, SIFT
 
         if (detectorType.compare("SHITOMASI") == 0)
         {
