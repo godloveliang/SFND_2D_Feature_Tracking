@@ -62,7 +62,17 @@ int main(int argc, const char *argv[])
         // push image into data frame buffer
         DataFrame frame;
         frame.cameraImg = imgGray;
-        dataBuffer.push_back(frame);
+        if  (dataBuffer.size() < dataBufferSize)
+        {  
+            dataBuffer.push_back(frame);
+            cout << "LOAD IMAGE INTO BUFFER done" << endl;
+        }  
+        else
+        {
+            dataBuffer.erase(dataBuffer.begin());
+            dataBuffer.push_back(frame);
+            cout << "REPLACE IMAGE IN BUFFER done" << endl;
+        }
 
         //// EOF STUDENT ASSIGNMENT
         cout << "#1 : LOAD IMAGE INTO BUFFER done" << endl;
@@ -71,20 +81,25 @@ int main(int argc, const char *argv[])
 
         // extract 2D keypoints from current image
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
-        string detectorType = "SHITOMASI";
+        string detectorType = "FAST";
 
         //// STUDENT ASSIGNMENT
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
-        //// -> HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
+        //// -> SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
 
         if (detectorType.compare("SHITOMASI") == 0)
         {
             detKeypointsShiTomasi(keypoints, imgGray, false);
         }
-        else
+        else if (detectorType.compare("HARRIS") == 0)
         {
-            //...
+            detKeypointsHarris(keypoints, imgGray, false);
         }
+        else 
+        {
+            detKeypointsModern(keypoints, imgGray, detectorType, false);
+        }
+
         //// EOF STUDENT ASSIGNMENT
 
         //// STUDENT ASSIGNMENT
@@ -93,11 +108,23 @@ int main(int argc, const char *argv[])
         // only keep keypoints on the preceding vehicle
         bool bFocusOnVehicle = true;
         cv::Rect vehicleRect(535, 180, 180, 150);
+        vector<cv::KeyPoint>::iterator keypoint;
+        vector<cv::KeyPoint> keypoints_roi;
         if (bFocusOnVehicle)
         {
-            // ...
+             for(keypoint = keypoints.begin(); keypoint != keypoints.end(); ++keypoint)
+             {
+                 if (vehicleRect.contains(keypoint->pt))
+                 {  
+                    cv::KeyPoint newKeyPoint;
+                    newKeyPoint.pt = cv::Point2f(keypoint->pt);
+                    newKeyPoint.size = 1;
+                    keypoints_roi.push_back(newKeyPoint);
+                 }
+             }
+            keypoints =  keypoints_roi;
+            cout << "IN ROI n= " << keypoints.size()<<" keypoints"<<endl;
         }
-
         //// EOF STUDENT ASSIGNMENT
 
         // optional : limit number of keypoints (helpful for debugging and learning)
@@ -125,7 +152,7 @@ int main(int argc, const char *argv[])
         //// -> BRIEF, ORB, FREAK, AKAZE, SIFT
 
         cv::Mat descriptors;
-        string descriptorType = "BRISK"; // BRIEF, ORB, FREAK, AKAZE, SIFT
+        string descriptorType = "BRISK"; // BRIEF, ORB, FREAK, AKAZE, SIFT, BRISK
         descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
         //// EOF STUDENT ASSIGNMENT
 
@@ -168,11 +195,18 @@ int main(int argc, const char *argv[])
                                 (dataBuffer.end() - 1)->cameraImg, (dataBuffer.end() - 1)->keypoints,
                                 matches, matchImg,
                                 cv::Scalar::all(-1), cv::Scalar::all(-1),
-                                vector<char>(), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+                                vector<char>(), cv::DrawMatchesFlags::DEFAULT);
 
                 string windowName = "Matching keypoints between two camera images";
                 cv::namedWindow(windowName, 7);
                 cv::imshow(windowName, matchImg);
+
+                //if(imgIndex == 2)
+                //{
+                //    string Img_Name = "../images/fast_brisk.png";
+                //    imwrite(Img_Name, matchImg);
+                //}
+
                 cout << "Press key to continue to next image" << endl;
                 cv::waitKey(0); // wait for key to be pressed
             }
